@@ -1,0 +1,34 @@
+import yfinance as yf
+import pandas as pd
+
+# Define ticker symbols
+tickers = {
+    'Bitcoin': 'BTC-USD',
+    'Ethereum': 'ETH-USD',
+    'Solana': 'SOL-USD'
+}
+
+# Fetch data
+def fetch_crypto_data(tickers, period='1mo', interval='1d'):
+    data = {}
+    for name, ticker in tickers.items():
+        print(f"Fetching data for {name}...")
+        df = yf.download(ticker, period=period, interval=interval)
+        df['Symbol'] = name
+        data[name] = df
+    return data
+
+# Merge all data into a single DataFrame
+def merge_data(data):
+    merged_df = pd.concat(data.values(), keys=data.keys())
+    return merged_df.reset_index(level=0).rename(columns={'level_0': 'Cryptocurrency'})
+
+# Fetch and process data
+crypto_data = fetch_crypto_data(tickers)
+merged_data = merge_data(crypto_data)
+
+# Save to CSV (optional)
+merged_data.to_csv('crypto_data.csv', index=False)
+
+# Display the first few rows
+print(merged_data.head())
